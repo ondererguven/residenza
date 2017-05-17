@@ -4,7 +4,7 @@ var userSchema = mongoose.Schema({
     name: String,
     surname: String,
     image: String,
-    room: Int
+    room: Number
 });
 
 var User = mongoose.model('User', userSchema);
