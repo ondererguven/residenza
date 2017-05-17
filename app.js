@@ -42,14 +42,6 @@ db.once('open', function() {
   // we're connected!
 });
 
-var kittySchema = mongoose.Schema({
-    name: String
-});
-
-var Kitten = mongoose.model('Kitten', kittySchema);
-var silence = new Kitten({ name: 'Silence' });
-console.log(silence.name); // 'Silence'
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
