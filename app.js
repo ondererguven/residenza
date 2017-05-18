@@ -5,12 +5,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// Routes definition
+var canteen = require('./routes/canteen');
 var index = require('./routes/index');
-var users = require('./routes/users');
-var shuttle = require('./routes/shuttle');
 var laundry = require('./routes/laundry');
-var mensa = require('./routes/mensa');
+var menu = require('./routes/menu');
 var services = require('./routes/services');
+var shuttle = require('./routes/shuttle');
+var users = require('./routes/users');
 
 var app = express();
 
@@ -26,12 +28,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Routes setup
+app.use('/canteen', canteen);
 app.use('/', index);
-app.use('/users', users);
-app.use('/shuttle', shuttle);
 app.use('/laundry', laundry);
-app.use('/mensa', mensa);
+app.use('/menu', menu);
 app.use('/services', services);
+app.use('/shuttle', shuttle);
+app.use('/users', users);
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/my_database');

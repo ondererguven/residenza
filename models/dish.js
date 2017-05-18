@@ -8,3 +8,7 @@ var dishSchema = mongoose.Schema({
     userLikes: [User],
     userNotLikes: [User]
 });
+
+var Dish = mongoose.model('Dish', dishSchema);
+
+module.exports = Dish;

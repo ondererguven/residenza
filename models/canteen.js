@@ -7,3 +7,7 @@ var canteenSchema = mongoose.Schema({
     canteenName: String,
     position: {lat: Number, lon: Number}
 });
+
+var Canteen = mongoose.model('Canteen', canteenSchema);
+
+module.exports = Canteen;
