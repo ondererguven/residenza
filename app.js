@@ -27,32 +27,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
-var oauthserver = require('oauth2-server');
-var model = require('./models/user');
-// model.createClient()
-app.oauth = oauthserver({
-  model: model,
-  grants: ['auth_code', 'password', 'refresh_token'],
-  debug: true,
-  accessTokenLifetime: model.accessTokenLifetime
-});
-// Handle token grant requests
-app.all('/oauth/token', app.oauth.grant());
-app.get('/secret', app.oauth.authorise(), function (req, res) {
-  // Will require a valid access_token
-  res.send('Secret area');
-});
-app.get('/public', function (req, res) {
-  // Does not require an access_token
-  res.send('Public area');
-});
-// Error handling
-app.use(app.oauth.errorHandler());
-
-
-
 app.use('/', index);
 app.use('/users', users);
 app.use('/shuttle', shuttle);
