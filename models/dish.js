@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var dishSchema = mongoose.Schema({
+var dishSchema = new Schema({
     name: String,
     description: String,
     image: String,

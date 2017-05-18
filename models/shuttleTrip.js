@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var shuttleTripSchema = mongoose.Schema({
+var shuttleTripSchema = new Schema({
     currentLocation: {lat: Number, lon: Number},
     schedule: [{lat: Number, lon: Number, time: Number, 
                 order: Number, name: String, usersBooked: [{type: Schema.Types.ObjectId, ref: 'User'}]}],
