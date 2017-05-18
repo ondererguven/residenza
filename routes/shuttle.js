@@ -6,11 +6,10 @@ var ShuttleTrip = require('../models/shuttleTrip');
 
 router.get('/', function(req, res, next) {
     var s = new Shuttle();
-    s.save(function (err) {
-
-    });
-    Shuttle.find({}, function (err, docs) {
-        res.send(docs);
+    s.serviceName = "Shuttle";
+    s.isActive = true;
+    s.save(function (err, shuttle) {
+        res.send(shuttle);
     });
 });
 
