@@ -1,12 +1,10 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var shuttleSchema = mongoose.Schema({
+var shuttleSchema = new Schema({
     serviceName: String,
-    currentLocation: {lat: Number, lon: Number},
-    schedule: [{lat: Number, lon: Number, time: Number, 
-                order: Number, name: String}],
-    nextStop: Number,
-    delay: Boolean
+    isActive: Boolean,
+    shuttleTrip: {type: Schema.Types.ObjectId, ref: 'ShuttleTrip'}
 });
 
 var Shuttle = mongoose.model('Shuttle', shuttleSchema);

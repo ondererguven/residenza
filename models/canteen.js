@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
-var Menu = require('./menu');
+var Schema = mongoose.Schema;
 
-var canteenSchema = mongoose.Schema({
+var canteenSchema = new Schema({
     serviceName: String,
-    menu: [Menu],
+    menu: [{type: Schema.Types.ObjectId, ref: 'Menu'}],
     canteenName: String,
     position: {lat: Number, lon: Number}
 });

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-var servicesSchema = mongoose.Schema({
+var servicesSchema = new Schema({
     availableServices: [{shuttle: Boolean, canteen: Boolean, laundry: Boolean}]
 });
 
