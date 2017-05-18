@@ -9,8 +9,9 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var shuttle = require('./routes/shuttle');
 var laundry = require('./routes/laundry');
-var mensa = require('./routes/mensa');
+var canteen = require('./routes/canteen');
 var services = require('./routes/services');
+var login = require('./routes/login');
 
 var app = express();
 
@@ -26,12 +27,39 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
+var oauthserver = require('oauth2-server');
+var model = require('./models/user');
+// model.createClient()
+app.oauth = oauthserver({
+  model: model,
+  grants: ['auth_code', 'password', 'refresh_token'],
+  debug: true,
+  accessTokenLifetime: model.accessTokenLifetime
+});
+// Handle token grant requests
+app.all('/oauth/token', app.oauth.grant());
+app.get('/secret', app.oauth.authorise(), function (req, res) {
+  // Will require a valid access_token
+  res.send('Secret area');
+});
+app.get('/public', function (req, res) {
+  // Does not require an access_token
+  res.send('Public area');
+});
+// Error handling
+app.use(app.oauth.errorHandler());
+
+
+
 app.use('/', index);
 app.use('/users', users);
 app.use('/shuttle', shuttle);
 app.use('/laundry', laundry);
-app.use('/mensa', mensa);
+app.use('/mensa', canteen);
 app.use('/services', services);
+app.use('/login', login);
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/my_database');
