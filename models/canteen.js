@@ -3,7 +3,7 @@ var Menu = require('./menu');
 
 var canteenSchema = mongoose.Schema({
     serviceName: String,
-    menu: [Menu],
+    menu: [{type: Schema.Types.ObjectId, ref: 'Menu'}],
     canteenName: String,
     position: {lat: Number, lon: Number}
 });

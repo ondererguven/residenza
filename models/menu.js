@@ -1,15 +1,13 @@
 var mongoose = require('mongoose');
-var Dish = require('./dish');
-var User = require('./user');
 
 var menuSchema = mongoose.Schema({
     date: Date,
     type: String,
-    firsts: [Dish],
-    seconds: [Dish],
-    sideDishes: [Dish],
-    usersBooked: [Users],
-    usersNotBooked: [Users]
+    firsts: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
+    seconds: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
+    sideDishes: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
+    usersBooked: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    usersNotBooked: [{type: Schema.Types.ObjectId, ref: 'User'}]
 });
 
 var Menu = mongoose.model('Menu', menuSchema);
