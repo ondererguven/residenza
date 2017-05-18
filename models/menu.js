@@ -7,8 +7,8 @@ var menuSchema = new Schema({
     firsts: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
     seconds: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
     sideDishes: [{type: Schema.Types.ObjectId, ref: 'Dish'}],
-    usersBooked: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    usersNotBooked: [{type: Schema.Types.ObjectId, ref: 'User'}]
+    usersBooked: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}],
+    usersNotBooked: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}]
 });
 
 var Menu = mongoose.model('Menu', menuSchema);

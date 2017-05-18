@@ -5,8 +5,8 @@ var dishSchema = new Schema({
     name: String,
     description: String,
     image: String,
-    userLikes: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    userNotLikes: [{type: Schema.Types.ObjectId, ref: 'User'}]
+    userLikes: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}],
+    userNotLikes: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}]
 });
 
 var Dish = mongoose.model('Dish', dishSchema);
