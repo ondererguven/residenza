@@ -20,7 +20,7 @@ var ShuttleStop = mongoose.model('ShuttleStop', shuttleStopSchema);
 
 var shuttleTripSchema = new Schema({
     currentLocation: {lat: Number, lon: Number},
-    schedule: [{type: Schema.Types.ObjectId, ref: 'Schedule'}],
+    stops: [{type: Schema.Types.ObjectId, ref: 'ShuttleStop'}],
     nextStop: Number,
     date: Date,
     driver: {type: Schema.Types.ObjectId, ref: 'OAuthUser'},
