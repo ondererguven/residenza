@@ -15,7 +15,7 @@ var shuttleStopSchema = new Schema({
     address: String,
     name: String
 });
-var ShuttleStop = mongoose.model('ShuttleStop', shuttleStationSchema);
+var ShuttleStop = mongoose.model('ShuttleStop', shuttleStopSchema);
 
 
 var shuttleTripSchema = new Schema({
