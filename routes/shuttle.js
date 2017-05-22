@@ -3,9 +3,9 @@ var router = express.Router();
 var mongoose = require('mongoose');
 
 var Shuttle = require('../models/shuttle').Shuttle;
-var Stop = require('../models/shuttle').ShuttleStop
+var Stop = require('../models/shuttle').ShuttleStop;
 var Trip = require('../models/shuttle').ShuttleTrip;
-var Schedule = require('../models/shuttle').ShuttleSchedule
+var Schedule = require('../models/shuttle').ShuttleSchedule;
 
 router.get('/', function(req, res, next) {
    
@@ -27,8 +27,8 @@ router.post('/stop', function(req, res, next){
         name: req.body.name
     });
 
-    stop.save(function(err, stopSaved){
-        if (err) {
+    stop.save(function(error, stopSaved){
+        if (error) {
             res.status(500).json({
                 error: "someCode",
                 message: "Something went wrong saving the stop"
@@ -52,8 +52,8 @@ router.post('/stop', function(req, res, next){
  * Retrieve all the schedules
 */
 router.get('/schedule', function(req, res, next){
-    Schedule.find(function(err, schedules){
-        if (err) {
+    Schedule.find(function(error, schedules){
+        if (error) {
             res.status(500).json({
                 error: "someCode",
                 message: "Something went wrong fetching the schedules"
@@ -89,8 +89,8 @@ router.post('/schedule', function(req, res, next){
         identifierCode: 'A'
     });
 
-    schedule.save(function(err, scheduleSaved){
-        if (err) {
+    schedule.save(function(error, scheduleSaved){
+        if (error) {
             res.status(500).json({
                 error: "someCode",
                 message: "Something went wrong saving the schedule"
@@ -106,11 +106,72 @@ router.post('/schedule', function(req, res, next){
 
 });
 
+/*
+ * Start a new  trip
+*/
+router.post('/trip', function(req, res, next) {
+    var dayIdentifier;
+    var today = new Date();
+    var currentDay = today.getDay(); // From Sunday 0 to Saturday 6
+    var currentHour = today.getHours(); // 0 to 23
+    switch (currentDay) {
+        case 0:
+            dayIdentifier = 'C';
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            dayIdentifier = 'A';
+            break;
+        case 6:
+            dayIdentifier = 'B';
+            break;
+        default:
+            res.status(500).json({
+                error: "someCode",
+                message: "Couldn't catch the day"
+            });
+            break;
+    }
+    var availableSchedules = [];
+    Schedule.find({'identifierCode': dayIdentifier}, function(error, schedules) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong fetching the schedules"
+            });
+        } else {
+            Schedule.populate(schedules, {path: 'stops', model: 'ShuttleStop'}, function(error, schedulesPopulated) {
+                if (error) {
+                    res.status(500).json({
+                        error: "someCode",
+                        message: "Couldn't populate the schedules"
+                    });
+                } else {
+                    for (var i = 0; i < schedulesPopulated[0].stops.length; i++) {
+                        var startingHour = schedulesPopulated[0].stops[i][0].time.substring(0,2);
+                        var startingHourAsNumber = Number(startingHour);
+                        if (startingHourAsNumber >= currentHour) {
+                            availableSchedules.push(schedulesPopulated[0].stops[i]);c 
+                        }
+                    }
+                    res.status(200).json({
+                        error: null,
+                        message: "OK",
+                        data: availableSchedules
+                    });
+                }
+            });
+        }
+    });
+});
 
 
 /*
  * Create the basic structure with all the stops and the three schedules. Call BEFORE '/create-trip-shuttle'.
-*/
+
 router.get('/create-stop-schedule', function(req, res){
 
     function addStopsA(hours){
@@ -339,10 +400,11 @@ router.get('/create-stop-schedule', function(req, res){
         });   
     });
 });
+*/
 
 /*
  * Create the basic structure with a trip and the shuttle. Call AFTER '/create-stop-schedule'.  
-*/
+
 router.get('/create-trip-shuttle', function(req, res){
     Schedule.find({identifierCode: 'B'}).then(function(schedule){
         var trip = new Trip({
@@ -367,6 +429,7 @@ router.get('/create-trip-shuttle', function(req, res){
         });
     });
 });
+*/
 
 
 
