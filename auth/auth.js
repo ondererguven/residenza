@@ -31,16 +31,17 @@ var OAuthUserSchema = new Schema({
   lastname: { type: String },
   email: { type: String, default: '' },
   image: String,
-  role: String
+  role: {type: String, required: true}
 });
 
 mongoose.model('OAuthRefreshToken', OAuthRefreshTokenSchema);
 mongoose.model('OAuthClient', OAuthClientSchema);
 mongoose.model('OAuthUser', OAuthUserSchema);
 
-var OAuthRefreshToken = mongoose.model('OAuthRefreshToken'),
-    OAuthClient = mongoose.model('OAuthClient'),
-    OAuthUser = mongoose.model('OAuthUser');
+var OAuthRefreshToken = mongoose.model('OAuthRefreshToken');
+var OAuthClient = mongoose.model('OAuthClient');
+var OAuthUser = mongoose.model('OAuthUser');
+module.exports.User = OAuthUser;
 
 // model.createClient = function() {
 //     var oAuthClient = new OAuthClient({

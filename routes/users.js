@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var User = require('../auth').User;
+var User = require('../auth/auth').User;
 
 router.get('/', function(req, res, next) {
   
