@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 var Schema = mongoose.Schema;
 var model = module.exports;
 
-model.accessTokenLifetime = 20;
+model.accessTokenLifetime = 120;
 
 // JWT secret key
 var secretKey = 'sample secret key';
@@ -67,7 +67,8 @@ model.getAccessToken = function (bearerToken, callback) {
     callback(null, {
       accessToken: bearerToken,
       clientId: decoded.sub,
-      userId: decoded.user,
+      // userId: decoded.user,
+      user: { id: decoded.user, role: decoded.role },
       expires: new Date(decoded.exp * 1000)
     });
   } catch(e) {    
@@ -96,7 +97,8 @@ model.generateToken = function(type, req, callback) {
   
   //Use JWT for access tokens
   var token = jwt.sign({
-    user: req.user.id
+    user: req.user.id,
+    role: req.user.role
   }, secretKey, {
     expiresIn: model.accessTokenLifetime,
     subject: req.client.clientId
@@ -154,8 +156,8 @@ model.getUser = function (username, password, callback) {
   OAuthUser.findOne({ username: username, password: password }, 
     function(err, user) {
         if(err) return callback(err);
-        console.log('User id: ' + user._id);
-        callback(null, user._id);
+        console.log('User: ' + user);
+        callback(null, user);
       }
   );
 };

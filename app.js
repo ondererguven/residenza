@@ -44,6 +44,22 @@ app.use('/services', services);
 app.use('/shuttle', shuttle);
 app.use('/users', users);
 
+
+/*-----------------------AUTH-----------------------*/
+
+var oauth = require('./auth/oauth').oauth;
+var permit = require('./auth/oauth').permit;
+
+// Handle token grant requests
+app.all('/oauth/token', oauth.grant());
+
+// Error handling
+app.use(oauth.errorHandler());
+
+
+/*-----------------------AUTH-----------------------*/
+
+
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/my_database');
 
