@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+var oauth = require('../auth/oauth').oauth;
+var permit = require('../auth/oauth').permit;
 
 var Shuttle = require('../models/shuttle').Shuttle;
 var Stop = require('../models/shuttle').ShuttleStop;
@@ -109,7 +111,10 @@ router.post('/schedule', function(req, res, next){
 /*
  * Start a new  trip
 */
-router.post('/trip', function(req, res, next) {
+router.post('/trip', 
+  oauth.authorise(), 
+  permit('driver'), 
+  function(req, res, next) {
     var dayIdentifier;
     var today = new Date();
     var currentDay = today.getDay(); // From Sunday 0 to Saturday 6
