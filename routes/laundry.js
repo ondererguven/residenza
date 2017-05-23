@@ -53,7 +53,29 @@ router.get('/:laundryId', function(req, res, next) {
  * Get a specific equipment in a laundry
  */ 
 router.get('/:laundryId/equipment/:equipmentId', function(req, res, next) {
-
+    var requestedEquipment;
+    Laundry.findById(req.params.laundryId, function(error, laundry) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong with fetching the laundry" 
+            });
+        } else {
+            Laundry.populate(laundry, {path: 'equipments', model: 'Equipment'}, function(error, laundryPopulated) {
+                var allEquipments = laundryPopulated.equipments;
+                for (var i = 0; i < allEquipments.length; i++) {
+                    if (allEquipments[i].id == req.params.equipmentId) {
+                        requestedEquipment = allEquipments[i];
+                    }
+                }
+                res.status(200).json({
+                    error: null,
+                    message: "OK",
+                    data: requestedEquipment
+                });
+            });
+        }
+    });
 });
 
 /*
