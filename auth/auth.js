@@ -42,18 +42,7 @@ var OAuthRefreshToken = mongoose.model('OAuthRefreshToken');
 var OAuthClient = mongoose.model('OAuthClient');
 var OAuthUser = mongoose.model('OAuthUser');
 module.exports.User = OAuthUser;
-
-// model.createClient = function() {
-//     var oAuthClient = new OAuthClient({
-//         clientId: "abcde",
-//         clientSecret: "secret"
-//     });
-    
-//     oAuthClient.save(function(err, result){
-//         console.log(err);
-//         console.log(result);
-//     });
-// }
+module.exports.OAuthClient = OAuthClient;
 
 // The following functions customize the behavior of oauth2-server
 

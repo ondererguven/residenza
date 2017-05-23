@@ -1,5 +1,6 @@
 var oauthserver = require('oauth2-server');
 var model = require('./auth');
+var OAuthClient = require('./auth').OAuthClient;
 
 // // model.createClient()
 
@@ -21,6 +22,15 @@ module.exports.permit = function permit(...allowed) {
       res.status(403).json({message: "Forbidden"}); // user is forbidden
     }
   }
+}
+
+module.exports.createClient = function() {
+    var oAuthClient = new OAuthClient({
+        clientId: "abcde",
+        clientSecret: "secret"
+    });
+    
+    return oAuthClient.save();
 }
 
 

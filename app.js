@@ -50,6 +50,15 @@ app.use('/users', users);
 var oauth = require('./auth/oauth').oauth;
 var permit = require('./auth/oauth').permit;
 
+/*
+var createClient = require('./auth/oauth').createClient;
+app.get('/create-client', function(req, res){
+  createClient().then(function(result){
+    res.status(200).json(result);
+  });
+});
+*/
+
 // Handle token grant requests
 app.all('/oauth/token', oauth.grant());
 
