@@ -31,7 +31,22 @@ router.get('/', function(req, res, next) {
  * Return a specific laundry
  */
 router.get('/:laundryId', function(req, res, next) {
-
+    Laundry.findById(req.params.laundryId, function(error, laundry) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong with fetching the laundry"
+            });
+        } else {
+            Laundry.populate(laundry, {path: 'equipments', model: 'Equipment'}, function(error, laundryPopulated){
+                res.status(200).json({
+                    error: null,
+                    message: "OK",
+                    data: laundryPopulated 
+                });
+            });
+        }
+    });
 });
 
 /*
