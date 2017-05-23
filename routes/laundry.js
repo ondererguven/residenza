@@ -6,19 +6,47 @@ var Laundry = require('../models/laundry');
 var Equipment = require('../models/equipment');
 
 /*
- * Return the laundry object with an array of equipments for enthgfofhggo
+ * Return all the laundries
  */
 router.get('/', function(req, res, next) {
+    Laundry.find(function(error, laundries) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong with fetching the laundries"
+            });
+        } else {
+            Laundry.populate(laundries, {path: 'equipments', model: 'Equipment'}, function(error, laundriesPopulated){
+                res.status(200).json({
+                    error: null,
+                    message: "OK",
+                    data: laundriesPopulated 
+                });
+            });
+        }
+    });
+});
+
+/*
+ * Return a specific laundry
+ */
+router.get('/:laundryId', function(req, res, next) {
+
+});
+
+/*
+ * Get a specific equipment in a laundry
+ */ 
+router.get('/:laundryId/equipment/:equipmentId', function(req, res, next) {
 
 });
 
 /*
  * Send a use request for a specific machine
  */ 
-router.post('/:id/equipment/:equipmentId', function(req, res, next) {
+router.post('/:laundryId/equipment/:equipmentId', function(req, res, next) {
 
 });
-
 
 /*
  * Create the laundry equipment
