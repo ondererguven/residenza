@@ -422,7 +422,7 @@ router.get('/create-stop-schedule', function(req, res){
         });   
     });
 });
-*/
+
 
 /*
  * Create the basic structure with a trip and the shuttle. Call AFTER '/create-stop-schedule'.  
