@@ -3,8 +3,7 @@ var Schema = mongoose.Schema;
 
 var laundrySchema = new Schema({
     serviceName: String,
-    equipment = [{type: String, order: Number, status: Boolean, 
-                  occupied: Boolean, remainingTime: Number}]
+    equipments: [{type: Schema.Types.ObjectId, ref: 'Equipment'}]
 });
 
 var Laundry = mongoose.model('Laundry', laundrySchema);

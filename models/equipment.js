@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var equipmentSchema = new Schema({
     type: String, 
     order: Number, 
-    status: Boolean, 
+    broken: Boolean, 
     occupied: Boolean, 
     remainingTime: Number
 });
