@@ -8,7 +8,7 @@ var Equipment = require('../models/equipment');
 /*
  * Return all the laundries
  */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     Laundry.find(function(error, laundries) {
         if (error) {
             res.status(500).json({
@@ -30,7 +30,7 @@ router.get('/', function(req, res, next) {
 /*
  * Return a specific laundry
  */
-router.get('/:laundryId', function(req, res, next) {
+router.get('/:laundryId', function(req, res) {
     Laundry.findById(req.params.laundryId, function(error, laundry) {
         if (error) {
             res.status(500).json({
@@ -52,27 +52,18 @@ router.get('/:laundryId', function(req, res, next) {
 /*
  * Get a specific equipment in a laundry
  */ 
-router.get('/:laundryId/equipment/:equipmentId', function(req, res, next) {
-    var requestedEquipment;
-    Laundry.findById(req.params.laundryId, function(error, laundry) {
+router.get('/equipment/:equipmentId', function(req, res) {
+    Equipment.findById(req.params.equipmentId, function(error, equipment) {
         if (error) {
             res.status(500).json({
                 error: "someCode",
-                message: "Something went wrong with fetching the laundry" 
+                message: "Something went wrong with fetching the equipment"
             });
         } else {
-            Laundry.populate(laundry, {path: 'equipments', model: 'Equipment'}, function(error, laundryPopulated) {
-                var allEquipments = laundryPopulated.equipments;
-                for (var i = 0; i < allEquipments.length; i++) {
-                    if (allEquipments[i].id == req.params.equipmentId) {
-                        requestedEquipment = allEquipments[i];
-                    }
-                }
-                res.status(200).json({
-                    error: null,
-                    message: "OK",
-                    data: requestedEquipment
-                });
+            res.status(200).json({
+                error: null,
+                message: "OK",
+                data: equipment
             });
         }
     });
@@ -81,8 +72,23 @@ router.get('/:laundryId/equipment/:equipmentId', function(req, res, next) {
 /*
  * Send a use request for a specific machine
  */ 
-router.post('/:laundryId/equipment/:equipmentId', function(req, res, next) {
-
+router.post('/equipment/book', function(req, res) {
+    var equipmentId = req.body.equipmentId;
+    var duration = req.body.duration;
+    Equipment.findByIdAndUpdate(equipmentId, { $set: {occupied: true, remainingTime: duration}}, {new: true}, function(error, equipment) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Problem with fetching the equipment"
+            })
+        } else {
+            res.status(200).json({
+                error: null,
+                message: "OK",
+                data: equipment
+            });
+        }
+    });
 });
 
 /*
