@@ -66,7 +66,7 @@ router.post('/:laundryId/equipment/:equipmentId', function(req, res, next) {
 /*
  * Create the laundry equipment
  
-router.get('/create-laundry-equipment', function(req, res) {
+router.get('/create/laundry-equipment', function(req, res) {
     function createWashers() {
         var promises = [];
 
