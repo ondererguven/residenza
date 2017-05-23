@@ -60,14 +60,24 @@ app.use(oauth.errorHandler());
 /*-----------------------AUTH-----------------------*/
 
 
+/*------------------------DB------------------------*/
+
+var dbCredentials = require('./config/db');
+
+if (dbCredentials.username == null || dbCredentials.password == null) {
+  console.log("Error in db credentials");
+}
+
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/my_database');
+mongoose.connect('mongodb://' + dbCredentials.username + ':' + dbCredentials.password + '@localhost:27017/residence');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   // we're connected!
 });
+
+/*------------------------DB------------------------*/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
