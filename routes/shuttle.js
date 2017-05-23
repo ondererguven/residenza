@@ -173,6 +173,23 @@ router.post('/trip',
     });
 });
 
+router.post('/cur-loc', function(req, res){
+    console.log(req.body);
+    Trip.findOne().then(function(trip){
+        trip.currentLocation.lat = req.body.latitude;
+        trip.currentLocation.lon = req.body.longitude;
+        trip.save().then(function(tripSaved){
+            res.status(200).json({err: false, message: tripSaved});
+        }); 
+    });
+});
+
+router.get('/cur-loc', function(req, res){
+    Trip.findOne().then(function(trip){
+        res.status(200).json({err: false, message: trip});
+    });
+    
+});
 
 /*
  * Create the basic structure with all the stops and the three schedules. Call BEFORE '/create-trip-shuttle'.
@@ -413,7 +430,7 @@ router.get('/create-stop-schedule', function(req, res){
 router.get('/create-trip-shuttle', function(req, res){
     Schedule.find({identifierCode: 'B'}).then(function(schedule){
         var trip = new Trip({
-            currentLocation: {lat: 40.855366, long: 14.283014},
+            currentLocation: {lat: 40.855366, lon: 14.283014},
             stops: schedule[0].stops[0],
             nextStop: 1,
             date: new Date(),
