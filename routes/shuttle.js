@@ -109,7 +109,7 @@ router.post('/schedule', function(req, res, next){
 });
 
 /*
- * Start a new  trip
+ * Start a new trip     WIP STILL NEEDS IMPLEMENTATION
 */
 router.post('/trip', 
   oauth.authorise(), 
