@@ -50,6 +50,26 @@ router.get('/:laundryId', function(req, res) {
 });
 
 /*
+ * Get all the equipments
+ */ 
+router.get('/equipment', function(req, res) {
+    Equipment.find(function(error, equipments) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong with fetching the equipments"
+            });
+        } else {
+            res.status(200).json({
+                error: null,
+                message: "OK",
+                data: equipments
+            });
+        }
+    });
+});
+
+/*
  * Get a specific equipment in a laundry
  */ 
 router.get('/equipment/:equipmentId', function(req, res) {
@@ -75,7 +95,10 @@ router.get('/equipment/:equipmentId', function(req, res) {
 router.post('/equipment/book', function(req, res) {
     var equipmentId = req.body.equipmentId;
     var duration = req.body.duration;
-    Equipment.findByIdAndUpdate(equipmentId, { $set: {occupied: true, remainingTime: duration}}, {new: true}, function(error, equipment) {
+
+    var t = new Date();
+
+    Equipment.findByIdAndUpdate(equipmentId, { $set: {occupied: true, bookedTime: t, durationOfBooking: duration}}, {new: true}, function(error, equipment) {
         if (error) {
             res.status(500).json({
                 error: "someCode",
