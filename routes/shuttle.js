@@ -13,7 +13,22 @@ var Schedule = require('../models/shuttle').ShuttleSchedule;
  *  Get shuttle information
  */ 
 router.get('/', function(req, res, next) {
-    
+    Shuttle.find(function(error, shuttles) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong with fetching the shuttle"
+            });
+        } else {
+            Shuttle.populate(shuttles, {path: 'trip', model: "ShuttleTrip"}, function(error, shuttlesPopulated) {
+                res.status(200).json({
+                    error: null,
+                    message: "OK",
+                    data: shuttlesPopulated
+                });
+            });
+        }
+    });
 });
 
 
