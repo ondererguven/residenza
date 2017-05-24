@@ -9,8 +9,11 @@ var Stop = require('../models/shuttle').ShuttleStop;
 var Trip = require('../models/shuttle').ShuttleTrip;
 var Schedule = require('../models/shuttle').ShuttleSchedule;
 
+/*
+ *  Get shuttle information
+ */ 
 router.get('/', function(req, res, next) {
-   
+    
 });
 
 
