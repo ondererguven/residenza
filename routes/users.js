@@ -6,7 +6,7 @@ var oauth = require('../auth/oauth').oauth;
 var permit = require('../auth/oauth').permit;
 var mailTransporter = require('../mail').mailTransporter;
 var config = require('../config/config');
-
+var utils = require('../utils');
 
 
 router.get('/', 
@@ -43,7 +43,7 @@ router.post('/',
 
     var user = new TmpUser(req.body);
     user.creationDate = new Date();
-    user.verificationCode = "abcde";
+    user.verificationCode = utils.uid(256);
 
     user.save().then(function(userSaved){
 
@@ -51,10 +51,9 @@ router.post('/',
       var mailOptions = {
           from: 'ilprimoloprendi@gmail.com',
           to: userSaved.email,
-          subject: 'Welcome to the residence platform!',
-          text: 'Hello world ?',
+          subject: 'You are almost there...',
           html: 'Hi <b>' + userSaved.firstname + '!</b>\r\n' +
-                'Click on the link below to verify your account ' +
+                'Click on the link below to verify your account in the Residenz\'m platform <br>' +
                 config.baseUrl + config.apiUrl + '/users/verify/' + userSaved.verificationCode
       };
 
@@ -97,7 +96,7 @@ router.get('/verify/:verificationCode', function(req, res){
       //create OAuthUser
       var user = new User({
         username: tmpUser.username,
-        password: "AKDSJFLKSDAJFLòKASDKASDJFòKLASDFJ",
+        password: utils.uid(128),
         firstname: tmpUser.firstname,
         lastname: tmpUser.lastname,
         email: tmpUser.email,
@@ -112,9 +111,33 @@ router.get('/verify/:verificationCode', function(req, res){
           });
         } else {
           console.log("user succefully created");
-          res.status(200).json({
-            err: false,
-            message: "DONE"
+
+          var messageText = 'Congratulations <b>' + userSaved.firstname + '!</b>\r\n' +
+                            'Click on the link below to download the application <br>' +
+                            config.baseUrl + config.apiUrl + '/here-there-will-be-the-redemption-code-for-the-application <br>' + 
+                            'When the application will be installed, click on this link to login into the application <br>' +
+                            config.iOSAppSchema + userSaved.username + '/' + userSaved.password;
+
+          var mailOptions = {};
+          mailOptions.from = 'ilprimoloprendi@gmail.com';
+          mailOptions.to = userSaved.email;
+          mailOptions.subject = 'Welcome to the residence platform!';
+          mailOptions.text = messageText;
+          mailOptions.html = messageText;
+
+          mailTransporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Message %s sent: %s', info.messageId, info.response);
+              }
+          });
+          
+          res.render('userVerified', { 
+            title: 'Congratulations!', 
+            platform: "Residenz'm", 
+            message: "You will receive an email with the information to download the iOS application. Please open the email from your iPhone to enjoy the best experience." ,
+            endMessage: "See you great magicians!"
           });
         }
       });
