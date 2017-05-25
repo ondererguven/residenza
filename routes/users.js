@@ -150,9 +150,11 @@ router.get('/verify/:verificationCode', function(req, res){
 /*
 router.get('/create-admin-user', function(req, res){
   var user = new User({
-    username: "bla",
+    username: "bla@bla.com",
     password: "bla",
-    role: "admin"
+    email: "bla@bla.com",
+    role: "admin",
+    isActive: true
   });
 
   user.save().then(function(userSaved){
