@@ -8,13 +8,19 @@ var mailTransporter = require('../mail').mailTransporter;
 
 
 
-router.get('/', function(req, res, next) {
+router.get('/', 
+  oauth.authorise(),
+  permit('admin'),
+  function(req, res, next) {
   
-  User.find(function(err, users){
-    res.status(200).json(users);
-  });
-  
-});
+    User.find(function(err, users){
+      res.status(200).json({
+        err: false,
+        data: users
+      });
+    }); 
+  }
+);
 
 router.post('/', 
   oauth.authorise(),
@@ -70,8 +76,8 @@ router.post('/',
         message: error
       });
     });
-
-});
+  }
+);
 
 router.get('/verify/:verificationCode', function(req, res){
   var code = req.params.verificationCode;
