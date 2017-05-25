@@ -20,7 +20,7 @@ router.get('/', function(req, res, next) {
                 message: "Something went wrong with fetching the shuttle"
             });
         } else {
-            Shuttle.populate(shuttles, {path: 'trip', model: "ShuttleTrip"}, function(error, shuttlesPopulated) {
+            Shuttle.populate(shuttles, {path: 'trip', model: "ShuttleTrip", populate: {path: 'stops', model: "ShuttleStop"}}, function(error, shuttlesPopulated) {
                 res.status(200).json({
                     error: null,
                     message: "OK",
