@@ -91,6 +91,34 @@ router.get('/schedule', function(req, res, next){
 });
 
 /*
+ * Retrieve all shuttle positions
+*/
+router.get('/positions', function(req, res){
+    var positions = [];
+    Shuttle.find({isActive: true}, function(error, shuttles){
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong fetching the schedules"
+            });
+        } else {
+            Shuttle.populate(shuttles, {path: "trip", model: 'ShuttleTrip'}, function(populateErr, shuttlesPopulated){
+                for (var i = 0; i < shuttlesPopulated.length; i++) {
+                    var s = shuttlesPopulated[i];
+                    positions.push(s.id);
+                    positions.push(s.trip.currentLocation);
+                }
+                res.status(200).json({
+                    error: null,
+                    message: "OK",
+                    data: positions
+                });
+            });         
+        }
+    });
+});
+
+/*
  * Add a new schedule
 */
 router.post('/schedule', function(req, res, next){
