@@ -25,24 +25,34 @@ var OAuthClientSchema = new Schema({
 });
 
 var OAuthUserSchema = new Schema({
-  username: { type: String },
+  username: { type: String, required: true },
   password: { type: String },
-  firstname: { type: String },
-  lastname: { type: String },
-  email: { type: String, default: '' },
-  image: String,
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
+  email: { type: String, required: true },
+  image: { type: String },
   role: {type: String, required: true}
 });
 
-mongoose.model('OAuthRefreshToken', OAuthRefreshTokenSchema);
-mongoose.model('OAuthClient', OAuthClientSchema);
-mongoose.model('OAuthUser', OAuthUserSchema);
+var TmpUserSchema = new Schema({
+  username: { type: String, required: true },
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
+  email: { type: String, required: true },
+  role: {type: String, required: true},
+  creationDate: Date, 
+  verificationCode: { type: String, required: true }
+});
 
-var OAuthRefreshToken = mongoose.model('OAuthRefreshToken');
-var OAuthClient = mongoose.model('OAuthClient');
-var OAuthUser = mongoose.model('OAuthUser');
+
+var OAuthRefreshToken = mongoose.model('OAuthRefreshToken', OAuthRefreshTokenSchema);
+var OAuthClient = mongoose.model('OAuthClient', OAuthClientSchema);
+var OAuthUser = mongoose.model('OAuthUser', OAuthUserSchema);
+var TmpUser = mongoose.model('TmpUser', TmpUserSchema);
+
 module.exports.User = OAuthUser;
 module.exports.OAuthClient = OAuthClient;
+module.exports.TmpUser = TmpUser;
 
 // The following functions customize the behavior of oauth2-server
 
