@@ -5,6 +5,7 @@ var TmpUser = require('../auth/auth').TmpUser;
 var oauth = require('../auth/oauth').oauth;
 var permit = require('../auth/oauth').permit;
 var mailTransporter = require('../mail').mailTransporter;
+var config = require('../config/config');
 
 
 
@@ -54,7 +55,7 @@ router.post('/',
           text: 'Hello world ?',
           html: 'Hi <b>' + userSaved.firstname + '!</b>\r\n' +
                 'Click on the link below to verify your account ' +
-                'http://127.0.0.1:3000/users/verify/' + userSaved.verificationCode
+                config.baseUrl + config.apiUrl + '/users/verify/' + userSaved.verificationCode
       };
 
       // send mail with defined transport object

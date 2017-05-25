@@ -14,7 +14,7 @@ var secretKey = 'sample secret key';
 var OAuthRefreshTokenSchema = new Schema({
   refreshToken: { type: String },
   clientId: { type: String },
-  userId: { type: String },
+  user: {type: Schema.Types.ObjectId, ref: 'OAuthUser'},
   expires: { type: Date }
 });
 
@@ -107,15 +107,15 @@ model.generateToken = function(type, req, callback) {
   callback(null, token);
 }
 
-model.saveRefreshToken = function (token, clientId, expires, userId, callback) {
+model.saveRefreshToken = function (token, clientId, expires, user, callback) {
   console.log('in saveRefreshToken (token: ' + token + 
               ', clientId: ' + clientId +
-              ', userId: ' + userId.id + ', expires: ' + expires + ')');
+              ', userId: ' + user.id + ', userRole: ' + user.role + ' expires: ' + expires + ')');
 
   var refreshToken = new OAuthRefreshToken({
     refreshToken: token,
     clientId: clientId,
-    userId: userId.id,
+    user: user.id,
     expires: expires
   });
 
@@ -125,7 +125,12 @@ model.saveRefreshToken = function (token, clientId, expires, userId, callback) {
 model.getRefreshToken = function (refreshToken, callback) {
   console.log('in getRefreshToken (refreshToken: ' + refreshToken + ')');
 
-  OAuthRefreshToken.findOne({ refreshToken: refreshToken }, callback);
+  OAuthRefreshToken
+    .findOne({ refreshToken: refreshToken })
+    .populate({path: 'user', model: "OAuthUser"})
+    .exec(function(err, refreshToken){
+      callback(err, refreshToken);
+  });
 };
 
 model.getClient = function (clientId, clientSecret, callback) {

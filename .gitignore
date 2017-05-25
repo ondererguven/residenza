@@ -61,3 +61,4 @@ typings/
 
 #Configs
 config/db.js
+config/config.js
