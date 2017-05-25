@@ -42,4 +42,30 @@ router.get('/:menuId', function(req, res) {
     });
 });
 
+router.post('/new', function(req, res) {
+    if (req.body.type && req.body.firsts && req.body.seconds && req.body.sideDishes) {
+        var today = new Date();
+        var menu = new Menu({
+            date: today,
+            type: req.body.type,
+            firsts: [req.body.firsts],
+            seconds: [req.body.seconds],
+            sideDishes: [req.body.sideDishes],
+            usersBooked: [],
+            usersNotBooked: []
+        });
+        menu.save();
+        res.status(200).json({
+            error: null,
+            message: "OK",
+            data: menu
+        });
+    } else {
+        res.status(500).json({
+            error: "someCode",
+            message: "Please send the correct data type",
+        });
+    }
+});
+
 module.exports = router;

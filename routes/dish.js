@@ -37,4 +37,27 @@ router.get('/:dishId', function(req, res) {
     });
 });
 
+router.post('/new', function(req, res) {
+    if (req.body.name && req.body.description && req.body.imageURL) {
+        var dish = new Dish({
+            name: req.body.name,
+            description: req.body.description,
+            image: req.body.imageURL,
+            userLikes: [],
+            userNotLikes: []
+        });
+        dish.save();
+        res.status(200).json({
+            error: null,
+            message: "OK",
+            data: dish 
+        });
+    } else {
+        res.status(500).json({
+            error: "someCode",
+            message: "Please send the correct data type"
+        });
+    }
+});
+
 module.exports = router;
