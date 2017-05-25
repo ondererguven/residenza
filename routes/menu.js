@@ -4,6 +4,9 @@ var router = express.Router();
 var Menu = require('../models/menu');
 var Dish = require('../models/dish');
 
+/*
+ *  Get all the menus
+ */ 
 router.get('/', function(req, res) {
     Menu.find(function(error, menus) {
         if (error) {
@@ -23,6 +26,10 @@ router.get('/', function(req, res) {
     });
 });
 
+
+/*
+ *  Get a specific menu
+ */  
 router.get('/:menuId', function(req, res) {
     Menu.findById(req.params.menuId, function (error, menu) {
         if (error) {
@@ -42,6 +49,10 @@ router.get('/:menuId', function(req, res) {
     });
 });
 
+
+/*
+ *  Add a new menu to the database
+ */
 router.post('/new', function(req, res) {
     if (req.body.type && req.body.firsts && req.body.seconds && req.body.sideDishes) {
         var today = new Date();
