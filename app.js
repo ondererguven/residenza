@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 // Routes definition
 var canteen = require('./routes/canteen');
+var dish = require('./routes/dish');
 var equipment = require('./routes/equipment');
 var index = require('./routes/index');
 var laundry = require('./routes/laundry');
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Routes setup
 app.use('/canteen', canteen);
+app.use('/dish', dish);
 app.use('/equipment', equipment);
 app.use('/', index);
 app.use('/laundry', laundry);
