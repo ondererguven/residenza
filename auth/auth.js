@@ -31,7 +31,8 @@ var OAuthUserSchema = new Schema({
   lastname: { type: String, required: true },
   email: { type: String, required: true },
   image: { type: String },
-  role: {type: String, required: true}
+  role: {type: String, required: true},
+  isActive: { type: Boolean, default: false }
 });
 
 var TmpUserSchema = new Schema({
@@ -162,7 +163,16 @@ model.getUser = function (username, password, callback) {
     function(err, user) {
         if(err) return callback(err);
         console.log('User: ' + user);
-        callback(null, user);
+
+        if (!user.isActive) {
+          user.isActive = true;
+          user.password = "";
+          user.save().then(function(userSaved){
+            callback(null, userSaved);
+          });
+        } else {
+          callback(null, user);
+        }
       }
   );
 };
