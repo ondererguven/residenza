@@ -23,6 +23,25 @@ router.get('/',
   }
 );
 
+router.get('/:userId', 
+  oauth.authorise(),
+  permit('admin'),
+  function(req, res, next) {
+    User.findById(req.params.userId, function(err, user){
+      if (err) {
+        res.status(500).json({
+          err: true,
+          data: err
+        });
+      }
+      res.status(200).json({
+        err: false,
+        data: user
+      });
+    }); 
+  }
+);
+
 router.post('/', 
   oauth.authorise(),
   permit('admin'),
@@ -79,6 +98,55 @@ router.post('/',
   }
 );
 
+router.put('/', 
+  oauth.authorise(),
+  permit('admin'),
+  function(req, res) {
+
+    if (
+      req.body._id == null || req.body._id == 'undefined' ||
+      req.body.username == null || req.body.username == 'undefined' ||
+      req.body.firstname == null || req.body.firstname == 'undefined' ||
+      req.body.lastname == null || req.body.lastname == 'undefined' ||
+      req.body.email == null || req.body.email == 'undefined' ||
+      req.body.role == null || req.body.role == 'undefined') {
+        res.status(500).json({
+          err: true,
+          message: "Check the mandatory fields"
+        });
+        return;
+    }
+
+    User.findById(req.body._id, function(err, user){
+      if (err) {
+        res.status(500).json({
+          err: true, 
+          message: err
+        });
+      } else {
+        user.username = req.body.username;
+        user.firstname = req.body.firstname;
+        user.lastname = req.body.lastname;
+        user.email = req.body.email;
+        user.role = req.body.role;
+        user.room = req.body.room;
+        user.modificationDate = new Date();
+        user.save().then(function(userSaved){
+          res.status(200).json({
+            err: false,
+            message: "DONE"
+          });
+        }).catch(function(error){
+          res.status(500).json({
+            err: true, 
+            message: error
+          });
+        });
+      }
+    });
+  }
+);
+
 router.get('/verify/:verificationCode', function(req, res){
   var code = req.params.verificationCode;
   console.log("Finding the verification code: " + code);
@@ -100,7 +168,8 @@ router.get('/verify/:verificationCode', function(req, res){
         firstname: tmpUser.firstname,
         lastname: tmpUser.lastname,
         email: tmpUser.email,
-        role: tmpUser.role
+        role: tmpUser.role, 
+        creationDate: new Date()
       });
       user.save(function(err, userSaved){
         if (err) {
@@ -148,7 +217,7 @@ router.get('/verify/:verificationCode', function(req, res){
 
 
 /*
-router.get('/create-admin-user', function(req, res){
+router.get('/create/admin-user', function(req, res){
   var user = new User({
     username: "bla@bla.com",
     password: "bla",
