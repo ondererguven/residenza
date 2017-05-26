@@ -165,6 +165,7 @@ model.getUser = function (username, password, callback) {
   OAuthUser.findOne({ username: username, password: password }, 
     function(err, user) {
         if(err) return callback(err);
+        if (!user) return callback(null);
         console.log('User: ' + user);
 
         if (!user.isActive) {
