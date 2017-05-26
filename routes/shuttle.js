@@ -12,7 +12,7 @@ var Schedule = require('../models/shuttle').ShuttleSchedule;
 /*
  *  Get shuttle information
  */ 
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     Shuttle.find(function(error, shuttles) {
         if (error) {
             res.status(500).json({
@@ -39,7 +39,7 @@ router.get('/', function(req, res, next) {
 /*
  * Add a new stop
 */
-router.post('/stop', function(req, res, next){
+router.post('/stop', oauth.authorise(), permit('admin'), function(req, res) {
     var stop = new Stop({
         coordinate: {lat: req.body.lat, lon: req.body.lon},
         time: req.body.time,
@@ -93,7 +93,7 @@ router.get('/schedule', function(req, res, next){
 /*
  * Retrieve all shuttle positions
 */
-router.get('/positions', function(req, res){
+router.get('/positions', function(req, res) {
     var positions = [];
     Shuttle.find({isActive: true}, function(error, shuttles){
         if (error) {
@@ -105,8 +105,11 @@ router.get('/positions', function(req, res){
             Shuttle.populate(shuttles, {path: "trip", model: 'ShuttleTrip'}, function(populateErr, shuttlesPopulated){
                 for (var i = 0; i < shuttlesPopulated.length; i++) {
                     var s = shuttlesPopulated[i];
-                    positions.push(s.id);
-                    positions.push(s.trip.currentLocation);
+                    var dataModel = {
+                        id: s.id,
+                        location: s.trip.currentLocation
+                    };
+                    positions.push(dataModel);
                 }
                 res.status(200).json({
                     error: null,
@@ -121,7 +124,7 @@ router.get('/positions', function(req, res){
 /*
  * Add a new schedule
 */
-router.post('/schedule', function(req, res, next){
+router.post('/schedule', oauth.authorise(), permit('admin'), function(req, res) {
 
     var idCode = req.body.idCode;
     var stops = [];
@@ -134,7 +137,7 @@ router.post('/schedule', function(req, res, next){
 
     var schedule = new Schedule({
         stops: [stops],
-        identifierCode: 'A'
+        identifierCode: idCode
     });
 
     schedule.save(function(error, scheduleSaved){
@@ -151,16 +154,12 @@ router.post('/schedule', function(req, res, next){
             });
         }
     });
-
 });
 
 /*
- * Start a new trip     WIP STILL NEEDS IMPLEMENTATION
+ * Start a new trip .  WIP DRIVER STUFF
 */
-router.post('/trip', 
-  oauth.authorise(), 
-  permit('driver'), 
-  function(req, res, next) {
+router.post('/trip', oauth.authorise(), permit('driver'), function(req, res) {
     var dayIdentifier;
     var today = new Date();
     var currentDay = today.getDay(); // From Sunday 0 to Saturday 6
@@ -234,7 +233,6 @@ router.get('/cur-loc', function(req, res){
     Trip.findOne().then(function(trip){
         res.status(200).json({err: false, message: trip});
     });
-    
 });
 
 /*
