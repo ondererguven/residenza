@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+var oauth = require('../auth/oauth').oauth;
 var Dish = require('../models/dish');
 
 
@@ -47,9 +48,79 @@ router.get('/:dishId', function(req, res) {
 
 
 /*
- *  Like a dish, WIP we must check the user beforehand, permit stuff etc. 
+ *  Like a dish, WIP we must check the user beforehand, permit stuff etc
+ *  Check if the user already liked the dish, if user disliked, remove from there and add in likes
  */
-router.post('/like', function(req, res) {
+router.post('/like', oauth.authorise(),function(req, res) {
+    if (req.body.dishId && req.user) {
+        Dish.findById(req.body.dishId, function(error, dish) {
+            if (error) {
+                res.status(500).json({
+                    error: "someCode",
+                    message: "Error with fetching the dish"
+                });
+            } else {
+                //Check if user already liked the dish
+                var userLikeIndex = dish.userLikes.indexOf(req.user);
+                if (userLikeIndex > -1) {
+                    res.status(200).json({
+                        error: null,
+                        message: "User already liked"
+                    });
+                    return;
+                }
+
+                //Check if user already disliked the dish
+                var userNotLikeIndex = dish.userNotLikes.indexOf(req.user);
+                if (userNotLikeIndex > -1) {
+                    dish.userNotLikes.splice(userNotLikeIndex, 1);
+                    dish.userLikes.push(req.user);
+                    dish.save(function(error) {
+                        if (error) {
+                            res.status(500).json({
+                                error: null,
+                                message: "Error saving the user"
+                            });
+                        } else {
+                            res.status(200).json({
+                                error: null,
+                                message: "User already liked"
+                            });
+                        }
+                    });
+                    return;
+                }
+                
+                //User was not found in any list, like dish
+                dish.userLikes.push(req.user);
+                dish.save(function(error){
+                    if (error) {
+                        res.status(500).json({
+                            error: "somecode",
+                            message: "Error with saving the user"
+                        });
+                    } else {
+                        res.status(200).json({
+                            error: null,
+                            message: "User liked the dish"
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        res.status(500).json({
+            error: "someCode",
+            message: "Please provide the required data"
+        });
+    }
+});
+
+/*
+ *  Dislike a dish, WIP we must check the user beforehand, permit stuff etc
+ *  Check if the user already disliked the dish, if user liked, remove from there and add in dislikes
+ */
+router.post('/dislike', function(req, res) {
     if (req.body.dishId) {
         Dish.findById(req.body.dishId, function(error, dish) {
             if (error) {
@@ -58,7 +129,7 @@ router.post('/like', function(req, res) {
                     message: "Problem with fetching the dish"
                 })
             } else {
-                dish.userLikes.push(req.body.user);
+                dish.userNotLikes.push(req.body.user);
                 dish.save(function(error, newDish) {
                     if (error) {
                         res.status(500).json({

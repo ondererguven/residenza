@@ -3,6 +3,7 @@ var Schema = mongoose.Schema;
 
 var dishSchema = new Schema({
     name: String,
+    type: String,
     description: String,
     image: String,
     userLikes: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}],
