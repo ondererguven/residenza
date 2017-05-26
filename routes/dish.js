@@ -72,7 +72,7 @@ router.post('/like', oauth.authorise(),function(req, res) {
 
                 //Check if user already disliked the dish
                 var userNotLikeIndex = dish.userNotLikes.indexOf(req.user);
-                if (userLikeIndex > -1) {
+                if (userNotLikeIndex > -1) {
                     dish.userNotLikes.splice(userNotLikeIndex, 1);
                     dish.userLikes.push(req.user);
                     dish.save(function(error) {
@@ -87,8 +87,8 @@ router.post('/like', oauth.authorise(),function(req, res) {
                                 message: "User already liked"
                             });
                         }
-                        return;
                     });
+                    return;
                 }
                 
                 //User was not found in any list, like dish
