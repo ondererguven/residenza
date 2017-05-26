@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+var oauth = require('../auth/oauth').oauth;
 var Dish = require('../models/dish');
 
 
@@ -50,56 +51,67 @@ router.get('/:dishId', function(req, res) {
  *  Like a dish, WIP we must check the user beforehand, permit stuff etc
  *  Check if the user already liked the dish, if user disliked, remove from there and add in likes
  */
-router.post('/like', function(req, res) {
-    if (req.body.dishId) {
+router.post('/like', oauth.authorise(),function(req, res) {
+    if (req.body.dishId && req.user) {
         Dish.findById(req.body.dishId, function(error, dish) {
             if (error) {
                 res.status(500).json({
                     error: "someCode",
-                    message: "Problem with fetching the dish"
-                })
+                    message: "Error with fetching the dish"
+                });
             } else {
-                for (var i = 0; i < dish.userLikes.length; i++) {
-                    var userId = dish.userLikes[i];
-                    if (userId == req.body.user) {
-                        res.status(200).json({
-                            error: null,
-                            message: "User already liked the dish"
+                //Check if user already liked the dish
+                var userLikeIndex = dish.userLikes.indexOf(req.user);
+                if (userLikeIndex > -1) {
+                    res.status(200).json({
+                        error: null,
+                        message: "User already liked"
+                    });
+                    return;
+                }
+
+                //Check if user already disliked the dish
+                var userNotLikeIndex = dish.userNotLikes.indexOf(req.user);
+                if (userLikeIndex > -1) {
+                    dish.userNotLikes.splice(userNotLikeIndex, 1);
+                    dish.userLikes.push(req.user);
+                    dish.save(function(error) {
+                        if (error) {
+                            res.status(500).json({
+                                error: null,
+                                message: "Error saving the user"
+                            });
+                        } else {
+                            res.status(200).json({
+                                error: null,
+                                message: "User already liked"
+                            });
+                        }
+                        return;
+                    });
+                }
+                
+                //User was not found in any list, like dish
+                dish.userLikes.push(req.user);
+                dish.save(function(error){
+                    if (error) {
+                        res.status(500).json({
+                            error: "somecode",
+                            message: "Error with saving the user"
                         });
                     } else {
-                        var userFound = false;
-                        for (var j = 0; j < dish.userNotLikes.length; j++) {
-                            var uId = dish.userNotLikes[j];
-                            if (uId == req.body.user) {
-                                dish.userNotLikes.pop(uId);
-                                dish.userLikes.push(uId);
-                                userFound = true;
-                            }
-                        }
-                        if (userFound == false) {
-                            dish.userLikes.push(req.body.user);
-                        }
-                        dish.save(function(error, newDish) {
-                            if (error) {
-                                res.status(500).json({
-                                    error: "someCode",
-                                    message: "Problem with saving the new data"
-                                })
-                            } else {
-                                res.status(200).json({
-                                    error: null,
-                                    message: "User liked"
-                                });
-                            }
+                        res.status(200).json({
+                            error: null,
+                            message: "User liked the dish"
                         });
                     }
-                }
+                });
             }
         });
     } else {
         res.status(500).json({
             error: "someCode",
-            message: "Please send the required data"
+            message: "Please provide the required data"
         });
     }
 });
