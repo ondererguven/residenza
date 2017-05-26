@@ -23,6 +23,18 @@ router.get('/',
   }
 );
 
+router.get('/drivers', 
+  function(req, res, next) {
+  
+    User.find({ role: 'driver' },function(err, drivers){
+      res.status(200).json({
+        err: false,
+        data: drivers
+      });
+    }); 
+  }
+);
+
 router.get('/:userId', 
   oauth.authorise(),
   permit('admin'),
