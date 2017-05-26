@@ -5,6 +5,7 @@ var Canteen = require('../models/canteen');
 var Menu = require('../models/menu');
 var Dish = require('../models/dish');
 
+
 router.get('/', function(req, res) {
     Canteen.find(function(error, canteens) {
         if (error) {
@@ -13,7 +14,7 @@ router.get('/', function(req, res) {
                 message: "Error with fetching the canteens"
             });
         } else {
-            Canteen.populate(canteens, {path: 'menu', model: 'Menu', populate: {path:'firsts seconds sideDishes', model: 'Dish'}}, function(error, canteensPopulated) {
+            Canteen.populate(canteens, {path: 'menu', model: 'Menu', populate: {path:'dishes', model: 'Dish'}}, function(error, canteensPopulated) {
                 res.status(200).json({
                     error: null,
                     message: "OK",
@@ -32,7 +33,7 @@ router.get('/:canteenId', function(req, res) {
                 message: "Error with fetching the canteen"
             });
         } else {
-            Canteen.populate(canteen, {path: 'menu', model: 'Menu', populate: {path:'firsts seconds sideDishes', model: 'Dish'}}, function(error, canteenPopulated) {
+            Canteen.populate(canteen, {path: 'menu', model: 'Menu', populate: {path:'dishes', model: 'Dish'}}, function(error, canteenPopulated) {
                 res.status(200).json({
                     error: null,
                     message: "OK",
@@ -44,11 +45,9 @@ router.get('/:canteenId', function(req, res) {
 });
 
 
-
-
-
-/*  Create canteen with a menu
- *
+/*
+ *  Create a canteen with a menu
+ * /
 router.get('/create-canteen', function(req, res) {
     Menu.findOne(function(error, m) {
         if (error) {
@@ -68,7 +67,10 @@ router.get('/create-canteen', function(req, res) {
     });
 });
 
-*  Create 3 dishes and add them to one menu 
+
+/*
+ *  Create three dishes and add those dishes in a menu
+ * /
 
 router.get('/create-dish-menu', function(req, res) {
     function addDish() {
@@ -76,6 +78,7 @@ router.get('/create-dish-menu', function(req, res) {
 
         var pastaConTonno = new Dish({
             name: "Pasta con Tonno",
+            type: "First",
             description: "Immigrant's favourite",
             image: "imageURL",
             userLikes: [],
@@ -84,8 +87,9 @@ router.get('/create-dish-menu', function(req, res) {
         promises.push(pastaConTonno.save());
 
         var risoAlSugo = new Dish({
-            name: "Riso al Sugo",
-            description: "Always too much",
+            name: "Carne al Vino",
+            type: "Second",
+            description: "Meat cooked in vine",
             image: "imageURL",
             userLikes: [],
             userDislike: []
@@ -94,6 +98,7 @@ router.get('/create-dish-menu', function(req, res) {
 
         var insalata = new Dish({
             name: "Insalata",
+            type: "Side Dish",
             description: "Mista",
             image: "imageURL",
             userLikes: [],
@@ -110,9 +115,7 @@ router.get('/create-dish-menu', function(req, res) {
             var menu = new Menu({
                 date: today,
                 type: "Lunch",
-                firsts: [e0[0]],
-                seconds: [e0[1]],
-                sideDishes: [e0[2]],
+                dishes: e0,
                 usersBooked: [],
                 usersNotBooked: []
             });

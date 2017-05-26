@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
                 message: "Error with fetching the menus"
             });
         } else {
-            Menu.populate(menus, {path:'firsts seconds sideDishes', model: 'Dish'}, function(error, menusPopulated) {
+            Menu.populate(menus, {path:'dishes', model: 'Dish'}, function(error, menusPopulated) {
                 res.status(200).json({
                     error: null,
                     message: "OK",
@@ -38,7 +38,7 @@ router.get('/:menuId', function(req, res) {
                 message: "Error with fetching the canteen"
             });
         } else {
-            Menu.populate(menu, {path:'firsts seconds sideDishes', model: 'Dish'}, function(error, menuPopulated) {
+            Menu.populate(menu, {path:'dishes', model: 'Dish'}, function(error, menuPopulated) {
                 res.status(200).json({
                     error: null,
                     message: "OK",
@@ -54,14 +54,12 @@ router.get('/:menuId', function(req, res) {
  *  Add a new menu to the database
  */
 router.post('/new', function(req, res) {
-    if (req.body.type && req.body.firsts && req.body.seconds && req.body.sideDishes) {
+    if (req.body.type && req.body.dishes) {
         var today = new Date();
         var menu = new Menu({
             date: today,
             type: req.body.type,
-            firsts: [req.body.firsts],
-            seconds: [req.body.seconds],
-            sideDishes: [req.body.sideDishes],
+            dishes: req.body.dishes,
             usersBooked: [],
             usersNotBooked: []
         });
