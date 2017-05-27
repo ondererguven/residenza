@@ -159,7 +159,113 @@ router.post('/schedule', oauth.authorise(), permit('admin'), function(req, res) 
 /*
  * Start a new trip .  WIP DRIVER STUFF
 */
-router.post('/trip', oauth.authorise(), permit('driver'), function(req, res) {
+router.post('/trip', 
+  oauth.authorise(), 
+  permit('driver'), 
+  function(req, res) {
+    
+    var stopId = req.body.stopId;
+    var driver = req.user;
+
+    var dayIdentifier;
+    var today = new Date();
+    var currentDay = today.getDay(); // From Sunday 0 to Saturday 6
+    var currentHour = today.getHours(); // 0 to 23
+    switch (currentDay) {
+        case 0:
+            dayIdentifier = 'C';
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            dayIdentifier = 'A';
+            break;
+        case 6:
+            dayIdentifier = 'B';
+            break;
+        default:
+            res.status(500).json({
+                error: "someCode",
+                message: "Couldn't catch the day"
+            });
+            break;
+    }
+    var availableSchedules = [];
+    Schedule
+      .find({'identifierCode': dayIdentifier})
+      .populate({path: 'stops', model: 'ShuttleStop'})
+      .exec(function(error, schedules) {
+        if (error) {
+            res.status(500).json({
+                error: "someCode",
+                message: "Something went wrong fetching the schedules"
+            });
+        } else {
+            var rightSchedule = null;
+            for (var i = 0; i < schedules[0].stops.length; i++) {
+                if (schedules[0].stops[i][0]._id == stopId) {
+                    rightSchedule = schedules[0].stops[i];
+                    break;
+                }
+            }
+
+            if (rightSchedule != null) {
+
+                var promises = [];
+
+                var trip = new Trip({
+                    currentLocation: rightSchedule[0].coordinate,
+                    stops: rightSchedule,
+                    nextStop: 1,
+                    date: new Date(),
+                    delay: false,
+                    driver: driver.id
+                });
+
+                promises.push(trip.save());
+
+                promises.push(Shuttle.findOne());
+
+                Promise.all(promises).then(function(results){
+                    tripSaved = results[0];
+                    var shuttle = results[1];
+
+                    shuttle.trip = tripSaved._id;
+                    shuttle.isActive = true;
+
+                    shuttle.save().then(function(shuttleSaved){
+                        Shuttle.populate(shuttleSaved, {path: 'trip', model: 'ShuttleTrip', populate: {path: 'stops driver'}}).then(function(shuttlePopulated){
+                            res.status(200).json({
+                                error: null,
+                                message: "OK",
+                                data: shuttlePopulated
+                            });
+                        });
+                        
+                    });
+                });
+            } else {
+                res.status(500).json({
+                    error: "someCode",
+                    message: "Something went wrong fetching the right schedule"
+                });
+            }
+        }
+    });
+});
+
+/*
+ * Get remainig trip for the day
+*/
+router.get('/trips', 
+  oauth.authorise(), 
+  permit('driver'), 
+  function(req, res) {
+
+    console.log("/users/trips requested by: " + req.user.id);
+
     var dayIdentifier;
     var today = new Date();
     var currentDay = today.getDay(); // From Sunday 0 to Saturday 6
@@ -193,27 +299,46 @@ router.post('/trip', oauth.authorise(), permit('driver'), function(req, res) {
                 message: "Something went wrong fetching the schedules"
             });
         } else {
-            Schedule.populate(schedules, {path: 'stops', model: 'ShuttleStop'}, function(error, schedulesPopulated) {
-                if (error) {
-                    res.status(500).json({
-                        error: "someCode",
-                        message: "Couldn't populate the schedules"
-                    });
-                } else {
-                    for (var i = 0; i < schedulesPopulated[0].stops.length; i++) {
-                        var startingHour = schedulesPopulated[0].stops[i][0].time.substring(0,2);
-                        var startingHourAsNumber = Number(startingHour);
-                        if (startingHourAsNumber >= currentHour) {
-                            availableSchedules.push(schedulesPopulated[0].stops[i]);c 
+            var thisMorning = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            Trip.find({date: { $gte: thisMorning }})
+                .sort({date: 'descending'})
+                .limit(1)
+                .populate({path: 'stops', model: 'ShuttleStop'})
+                .exec(function(err, trips){
+                    if (err) {
+                        res.status(500).json({
+                            error: "someCode",
+                            message: "Couldn't catch the day"
+                        });
+                    } else {
+                        var lastHour = null;
+                        if (trips.length > 0) {
+                            lastHour = trips[0].stops[0].time
                         }
+                        console.log("lastHour: " + lastHour);
+
+                        Schedule.populate(schedules, {path: 'stops', model: 'ShuttleStop'}, function(error, schedulesPopulated) {
+                            if (error) {
+                                res.status(500).json({
+                                    error: "someCode",
+                                    message: "Couldn't populate the schedules"
+                                });
+                            } else {
+                                for (var i = 0; i < schedulesPopulated[0].stops.length; i++) {
+                                    var startingHour = schedulesPopulated[0].stops[i][0].time.substring(0,2);
+                                    if (lastHour == null || (lastHour != null && startingHour >= lastHour)) {
+                                        availableSchedules.push(schedulesPopulated[0].stops[i][0]);
+                                    }
+                                }
+                                res.status(200).json({
+                                    error: null,
+                                    message: "OK",
+                                    data: availableSchedules
+                                });
+                            }
+                        });
                     }
-                    res.status(200).json({
-                        error: null,
-                        message: "OK",
-                        data: availableSchedules
-                    });
-                }
-            });
+                });
         }
     });
 });
