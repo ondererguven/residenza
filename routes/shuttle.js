@@ -208,6 +208,20 @@ router.post('/schedule', oauth.authorise(), permit('admin'), function(req, res) 
     });
 });
 
+router.post('/:shuttleId/book', oauth.authorise(), permit('resident'), function(req, res) {
+    if (req.user && req.body.stopId && req.body.tripId) {
+        var selectedStop = req.body.stopId
+        Trip.findById(req.body.tripId)
+            .populate({path: 'stops', model: 'ShuttleStop'})
+            .exec(function(error, schedules) {
+                
+            });
+    } else {
+
+    }
+
+});
+
 /*
  * Start a new trip .  TESTING!
 */
