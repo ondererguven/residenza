@@ -31,6 +31,58 @@ router.get('/', function(req, res) {
     });
 });
 
+/**
+ *  Update shuttle information. This route can update only isActive
+ *  information of the shuttle: id isActive = false the trip is deleted from the shuttle. 
+ *  For other property create a new shuttle
+ */
+router.put('/:shuttleId', 
+  oauth.authorise(),
+  permit('driver'),
+  function(req, res){
+
+    if (req.body.isActive || req.body.trip) {
+          Shuttle
+            .findById(req.params.shuttleId)
+            .exec(function(err, shuttle) {
+              if (err) {
+                  res.status(500).json({
+                      err: true,
+                      message: err
+                  });
+                  return;
+              }
+              if (req.body.isActive != null && typeof req.body.isActive != 'undefined') {
+                shuttle.isActive = req.body.isActive
+              }
+
+              if (!shuttle.isActive) {
+                  shuttle.trip = null;
+              }
+              
+              shuttle.save().then(function(shuttleSaved){
+                  res.status(200).json({
+                      err: false,
+                      message: "DONE"
+                  });
+              }).catch(function(err){
+                  res.status(500).json({
+                      err: true,
+                      message: err
+                  });
+              });
+          });
+      } else {
+          res.status(200).json({
+              err: false,
+              message: "No changes made, because neither currentLocation neither nextStop was found in the body",
+              data: null
+          }); 
+      }
+
+    
+});
+
 
 /*-------------------------------------------------*/
 /*---------------------STOP------------------------*/
@@ -157,7 +209,7 @@ router.post('/schedule', oauth.authorise(), permit('admin'), function(req, res) 
 });
 
 /*
- * Start a new trip .  WIP DRIVER STUFF
+ * Start a new trip .  TESTING!
 */
 router.post('/trip', 
   oauth.authorise(), 
@@ -342,6 +394,57 @@ router.get('/trips',
         }
     });
 });
+
+/*
+ * Update a trip. This route update only the currentLocation and the nextStop taken by the application, 
+ * and check if there is some delay. ---------> WIP for the delay checking
+*/
+router.put('/:shuttleId/trip', 
+  oauth.authorise(),
+  permit('driver'),
+  function(req, res) {
+
+      if ((req.body.latitude && req.body.longitude) || req.body.nextStop) {
+          Shuttle
+            .findById(req.params.shuttleId)
+            .populate({path: 'trip', model: 'ShuttleTrip' })
+            .exec(function(err, shuttle) {
+              if (err) {
+                  res.status(500).json({
+                      err: true,
+                      message: err
+                  });
+                  return;
+              }
+              var trip = shuttle.trip;
+
+              if (req.body.latitude != null && req.body.longitude != null) {
+                  trip.currentLocation = {
+                      lat: req.body.latitude,
+                      lon: req.body.longitude
+                  };
+              }
+            
+              trip.nextStop = req.body.nextStop || trip.nextStop;
+
+              //CHECK for the delay
+
+              trip.save().then(function(tripSaved){
+                  res.status(200).json({
+                      err: false,
+                      message: "DONE"
+                  });
+              });
+          });
+      } else {
+          res.status(200).json({
+              err: false,
+              message: "No changes made, because neither currentLocation neither nextStop was found in the body",
+              data: null
+          }); 
+      }
+  }
+);
 
 router.post('/cur-loc', function(req, res){
     console.log(req.body);
