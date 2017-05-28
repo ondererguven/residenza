@@ -208,16 +208,42 @@ router.post('/schedule', oauth.authorise(), permit('admin'), function(req, res) 
     });
 });
 
-router.post('/:shuttleId/book', oauth.authorise(), permit('resident'), function(req, res) {
-    if (req.user && req.body.stopId && req.body.tripId) {
+router.post('/:shuttleId/book', 
+  oauth.authorise(), 
+  permit('resident'), 
+  function(req, res) {
+    if (req.user && req.body.stopId) {
         var selectedStop = req.body.stopId
-        Trip.findById(req.body.tripId)
-            .populate({path: 'stops', model: 'ShuttleStop'})
-            .exec(function(error, schedules) {
-                
+        Shuttle.findById(req.params.shuttleId)
+            .exec(function(error, shuttle) {
+                if (error) {
+                    res.status(500).json({
+                        error: true,
+                        message: error
+                    });
+                } else {
+                    shuttle.usersBooked.push({
+                        stop: selectedStop,
+                        user: req.user
+                    });
+                    shuttle.save().then(function(shuttleSaved){
+                        res.status(200).json({
+                            error: false,
+                            message: "DONE"
+                        });
+                    }).catch(function(err){
+                        res.status(500).json({
+                            error: true,
+                            message: err
+                        });
+                    });
+                }
             });
     } else {
-
+        res.status(500).json({
+            error: true,
+            message: "User or stopId not found!!!"
+        });
     }
 
 });

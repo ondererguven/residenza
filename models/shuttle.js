@@ -24,7 +24,12 @@ var shuttleTripSchema = new Schema({
     nextStop: Number,
     date: Date,
     driver: {type: Schema.Types.ObjectId, ref: 'OAuthUser'},
-    usersBooked: [{type: Schema.Types.ObjectId, ref: 'OAuthUser'}],
+    usersBooked: [
+        {
+            stop: {type: Schema.Types.ObjectId, ref: 'ShuttleStop'},
+            user: {type: Schema.Types.ObjectId, ref: 'OAuthUser'}
+        }
+    ],
     delay: Boolean
 });
 var ShuttleTrip = mongoose.model('ShuttleTrip', shuttleTripSchema);
