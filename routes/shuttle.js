@@ -215,6 +215,7 @@ router.post('/:shuttleId/book',
     if (req.user && req.body.stopId) {
         var selectedStop = req.body.stopId
         Shuttle.findById(req.params.shuttleId)
+            .populate({path: 'trip', model: 'ShuttleTrip'})
             .exec(function(error, shuttle) {
                 if (error) {
                     res.status(500).json({
@@ -222,11 +223,15 @@ router.post('/:shuttleId/book',
                         message: error
                     });
                 } else {
-                    shuttle.usersBooked.push({
-                        stop: selectedStop,
-                        user: req.user
+                    var trip = shuttle.trip;
+                    if (trip.usersBooked == null || typeof trip.usersBooked == 'undefined') {
+                        trip.usersBooked = [];
+                    }
+                    trip.usersBooked.push({
+                        stop: mongoose.Types.ObjectId(selectedStop),
+                        user: mongoose.Types.ObjectId(req.user.id)
                     });
-                    shuttle.save().then(function(shuttleSaved){
+                    trip.save().then(function(tripSaved){
                         res.status(200).json({
                             error: false,
                             message: "DONE"
