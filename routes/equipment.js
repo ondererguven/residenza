@@ -48,7 +48,7 @@ router.get('/:equipmentId', function(req, res) {
  * Send a use request for a specific machine
  */ 
 router.post('/book', function(req, res) {
-    var equipmentId = req.body.equipmentId;
+    var equipmentId = mongoose.Types.ObjectId(req.body.equipmentId);
     var duration = req.body.duration;
 
     var t = new Date();
