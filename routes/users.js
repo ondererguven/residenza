@@ -23,6 +23,20 @@ router.get('/',
   }
 );
 
+router.get('/tmp-users', 
+  oauth.authorise(),
+  permit('admin'),
+  function(req, res, next) {
+  
+    TmpUser.find(function(err, users){
+      res.status(200).json({
+        err: false,
+        data: users
+      });
+    }); 
+  }
+);
+
 router.get('/drivers', 
   function(req, res, next) {
   
