@@ -1,13 +1,41 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+var oauth = require('../auth/oauth').oauth;
+var permit = require('../auth/oauth').permit;
 
 var Equipment = require('../models/equipment');
+
+var checkEquipments = function() {
+    return function (req, res, next) {
+        var promises = [];
+        Equipment.find().then(function(equipments) {
+            for (var i = 0; i < equipments.length; i++) {
+                var equipment = equipments[i];
+                if (equipment.occupied) {
+                    var finishTime = new Date(equipment.bookedTime.getTime() + equipment.durationOfBooking*60000);
+                    console.log(finishTime);
+                    if (new Date().getTime() > finishTime.getTime()) {
+                        equipment.occupied = false;
+                        equipment.bookedTime = null;
+                        equipment.durationOfBooking = 0;
+                        promises.push(equipment.save());
+                    }
+                }
+            }
+            Promise.all(promises).then(function(equipments) {
+                next();
+            });
+        });
+    }
+}
 
 /*
  * Get all the equipments
  */ 
-router.get('/', function(req, res) {
+router.get('/', 
+  checkEquipments(),
+  function(req, res) {
     Equipment.find(function(error, equipments) {
         if (error) {
             res.status(500).json({
@@ -21,13 +49,15 @@ router.get('/', function(req, res) {
                 data: equipments
             });
         }
-    });
+  });
 });
 
 /*
  * Get a specific equipment in a laundry
  */ 
-router.get('/:equipmentId', function(req, res) {
+router.get('/:equipmentId', 
+  checkEquipments(),
+  function(req, res) {
     Equipment.findById(req.params.equipmentId, function(error, equipment) {
         if (error) {
             res.status(500).json({
@@ -41,13 +71,16 @@ router.get('/:equipmentId', function(req, res) {
                 data: equipment
             });
         }
-    });
+  });
 });
 
 /*
  * Send a use request for a specific machine
  */ 
-router.post('/book', function(req, res) {
+router.post('/book', 
+  oauth.authorise(),
+  permit('resident'),
+  function(req, res) {
     var equipmentId = mongoose.Types.ObjectId(req.body.equipmentId);
     var duration = req.body.duration;
 
@@ -160,3 +193,4 @@ router.get('/create/laundry-equipment', function(req, res) {
 */
 
 module.exports = router;
+module.exports.checkEquipments = checkEquipments;

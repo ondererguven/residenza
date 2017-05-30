@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+var checkEquipments = require('./equipment').checkEquipments;
 
 var Laundry = require('../models/laundry');
 var Equipment = require('../models/equipment');
@@ -8,7 +9,9 @@ var Equipment = require('../models/equipment');
 /*
  * Return all the laundries
  */
-router.get('/', function(req, res) {
+router.get('/', 
+  checkEquipments(),
+  function(req, res) {
     Laundry.find(function(error, laundries) {
         if (error) {
             res.status(500).json({
@@ -24,13 +27,15 @@ router.get('/', function(req, res) {
                 });
             });
         }
-    });
+  });
 });
 
 /*
  * Return a specific laundry
  */
-router.get('/:id', function(req, res) {
+router.get('/:id', 
+  checkEquipments(),
+  function(req, res) {
     Laundry.findById(req.params.id, function(error, laundry) {
         if (error) {
             res.status(500).json({
@@ -46,7 +51,7 @@ router.get('/:id', function(req, res) {
                 });
             });
         }
-    });
+  });
 });
 
 module.exports = router;
