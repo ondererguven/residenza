@@ -157,11 +157,13 @@ router.get('/positions', function(req, res) {
             Shuttle.populate(shuttles, {path: "trip", model: 'ShuttleTrip'}, function(populateErr, shuttlesPopulated){
                 for (var i = 0; i < shuttlesPopulated.length; i++) {
                     var s = shuttlesPopulated[i];
-                    var dataModel = {
-                        id: s.id,
-                        location: s.trip.currentLocation
-                    };
-                    positions.push(dataModel);
+                    if (s.trip) {
+                        var dataModel = {
+                            id: s.id,
+                            location: s.trip.currentLocation
+                        };
+                        positions.push(dataModel);
+                    }
                 }
                 res.status(200).json({
                     error: null,
