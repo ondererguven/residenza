@@ -207,11 +207,8 @@ router.get('/verify/:verificationCode', function(req, res){
         } else {
           console.log("user succefully created");
 
-          var messageText = 'Congratulations <b>' + userSaved.firstname + '!</b>\r\n' +
-                            'Click on the link below to download the application <br>' +
-                            config.baseUrl + config.apiUrl + '/here-there-will-be-the-redemption-code-for-the-application <br>' + 
-                            'When the application will be installed, click on this link to login into the application <br>' +
-                            config.iOSAppSchema + userSaved.username + '/' + userSaved.password;
+          var messageText = 'Congratulations <b>' + userSaved.firstname + '!</b>\r\n\r\n' +
+                            'Click on <a href="' + config.iOSAppSchema + userSaved.username + '/' + userSaved.password + '">this link</a> to login into the application.';
 
           var mailOptions = {};
           mailOptions.from = 'ilprimoloprendi@gmail.com';
