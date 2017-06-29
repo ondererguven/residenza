@@ -15,6 +15,7 @@ var menu = require('./routes/menu');
 var services = require('./routes/services');
 var shuttle = require('./routes/shuttle');
 var users = require('./routes/users');
+var landing = require('./routes/landing');
 
 var app = express();
 
@@ -47,6 +48,7 @@ app.use('/menu', menu);
 app.use('/services', services);
 app.use('/shuttle', shuttle);
 app.use('/users', users);
+app.use('/landing', landing);
 
 
 /*-----------------------AUTH-----------------------*/
