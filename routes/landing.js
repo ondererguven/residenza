@@ -115,7 +115,7 @@ router.post('/university',
 router.get('/university', function(req, res) {
     if (req.query.name) {
         var newFullData = data.filter(function(u){
-            return u.name.toLowerCase().indexOf(req.query.name) !== -1;
+            return u.name.toLowerCase().indexOf(req.query.name.toLowerCase()) !== -1;
         });
         
         var newData = [];
