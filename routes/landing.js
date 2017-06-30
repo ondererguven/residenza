@@ -120,7 +120,7 @@ router.get('/university', function(req, res) {
         
         var newData = [];
         for (var i = 0; i < newFullData.length; i++) {
-            newData.append({ name: newFullData[i] });
+            newData.push({ name: newFullData[i] });
         }
 
         res.status(200).json({
